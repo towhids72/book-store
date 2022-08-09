@@ -13,14 +13,21 @@ user_blueprint = Blueprint('user_api_routes', __name__, url_prefix='/api/users')
 
 @user_blueprint.route('/all', methods=['GET'])
 def get_all_users():
-    all_users = User.query.all()
-    data = [user.serialize() for user in all_users]
-    return APIResponse.ok_response(data=data)
+    if current_user.is_authenticated and current_user.is_admin:
+        all_users = User.query.all()
+        data = [user.serialize() for user in all_users]
+        return APIResponse.ok_response(data=data)
+    else:
+        return APIResponse.error_response('Only admins can see all users', 401)
 
 
 @user_blueprint.route('/create', methods=['POST'])
 def create_user():
-    json_body = json.loads(request.data)
+    try:
+        json_body = json.loads(request.data)
+    except Exception as ex1:
+        print(ex1)
+        return APIResponse.error_response('Invalid body', 400)
     username = json_body.get('username', None)
     password = json_body.get('password', None)
     if username is None:
@@ -41,7 +48,11 @@ def create_user():
 
 @user_blueprint.route('/login', methods=['POST'])
 def login_user_request():
-    json_body = json.loads(request.data)
+    try:
+        json_body = json.loads(request.data)
+    except Exception as ex1:
+        print(ex1)
+        return APIResponse.error_response('Invalid body', 400)
     username = json_body.get('username', None)
     password = json_body.get('password', None)
     if username is None:
