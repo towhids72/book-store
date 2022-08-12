@@ -11,6 +11,13 @@ from user.models import User, db
 user_blueprint = Blueprint('user_api_routes', __name__, url_prefix='/api/users')
 
 
+@user_blueprint.route('/', methods=['GET'])
+def get_current_user():
+    api_key = request.headers.get('Authorization')
+    if not current_user.is_authenticated or not api_key:
+        return APIResponse.error_response('Not Authorized', 401)
+    return APIResponse.ok_response(current_user.serialize())
+
 @user_blueprint.route('/all', methods=['GET'])
 def get_all_users():
     if current_user.is_authenticated and current_user.is_admin:

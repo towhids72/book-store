@@ -9,3 +9,4 @@ sqlalchemy==1.4.39
 flask-sqlalchemy==2.5.1
 flask-login==0.6.2
 flask-migrate==3.1.0
+requests==2.28.1
